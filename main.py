@@ -1016,7 +1016,7 @@ def load_auto_like_uids():
 
 def send_like_request(uid):
     """Gửi yêu cầu like đến API."""
-    url = "https://like-zproject-sever.onrender.com/like"
+    url = "https://like-sever-zproject-vn.onrender.com/like"
     params = {"uid": uid, "server_name": "vn"} # Đã sửa thành server_name
     try:
         response = requests.get(url, params=params)
@@ -1134,7 +1134,7 @@ def send_like(message):
 
     wait_msg = bot.reply_to(message, "⏳️")
 
-    url = "https://like-zproject-sever.onrender.com/like"
+    url = "https://like-sever-zproject-vn.onrender.com/like"
     params = {"uid": uid, "server_name": "vn"} # Đã sửa thành server_name
 
     try:
@@ -1458,7 +1458,7 @@ def handle_checkgrn_command(message):
         logging.error(f"Failed to send waiting message for /checkgrn from user {message.from_user.id}")
         return
 
-    api_url = f"https://zproject-api-check-garena.onrender.com/check?username={username}&password={password}&api-key=zprojectfree"
+    api_url = f"https://checkgrn.onrender.com/check?username={username}&password={password}&api-key=zprojectfree"
 
     try:
         response = session.get(api_url, timeout=DEFAULT_TIMEOUT_GLOBAL)
@@ -1701,7 +1701,7 @@ def request_add_friend(message):
         logging.error(f"Failed to send waiting message for /kbff from user {message.from_user.id}")
         return
 
-    api_url = f"https://zproject-bot-spam.onrender.com/addfriend?uid={uid_to_add}"
+    api_url = f"https://spam-friend-freefire-zproject-vn.onrender.com/addfriend?uid={uid_to_add}"
 
     try:
         response = requests.get(api_url)
