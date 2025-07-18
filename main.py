@@ -559,14 +559,6 @@ def handle_in4ff_command(message):
             reply_to_message_id=message.message_id
         )
 
-viết 1 @bot.message_handler(commands= giống vậy á nhưng chức năg là ghi /locket [url] [thead] [tinnhan] [emoji=true/flase]
-ví dụ
-/locket https://locket.cam/dtny10t1 600 xin_chao emoji=true
-thì nó sẽ gửi lên api
-
-https://zproject-locket-vietnam.onrender.com/api/locket/start?target_url=https://locket.cam/dtny10t1&num_threads=600&username=Xin_Chao&emoji=true
-và api phản hồi
-
 
 @bot.message_handler(commands=["start"])
 @increment_interaction_count
