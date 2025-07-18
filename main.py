@@ -40,7 +40,7 @@ logging.basicConfig(
 # --- Cấu hình chung ---
 TOKEN = os.environ.get("BOT_TOKEN", "7539540916:AAENFBF2B2dyXLITmEC2ccgLYim2t9vxOQk")
 ADMIN_ID = int(os.environ.get("ADMIN_ID", 5819094246))
-APP_URL = os.environ.get("APP_URL", "https://zproject-111.onrender.com")
+APP_URL = os.environ.get("APP_URL", "https://zproject-111-dfy5.onrender.com")
 AUTO_LIKE_CHANNEL_ID = -1002625481749 # ID nhóm để gửi thông báo auto like
 SAVE_ID_API_URL = "http://zproject-api-sever-tele.x10.mx/api-save-id.php"
 SAVE_ID_JSON_URL = "http://zproject-api-sever-tele.x10.mx/save-id-auto.json"
