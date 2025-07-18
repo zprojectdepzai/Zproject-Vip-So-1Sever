@@ -1,0 +1,6 @@
+pyTelegramBotAPI
+Flask
+requests
+Pillow
+gTTS
+colorama
