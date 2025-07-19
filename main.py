@@ -1423,6 +1423,146 @@ def send_feedback_to_admin(message):
         logging.error(f"Lỗi khi gửi phản hồi đến admin: {e}")
         send_message_robustly(message.chat.id, text="❌ Đã xảy ra lỗi khi gửi phản hồi. Vui lòng thử lại sau.", parse_mode="HTML", reply_to_message_id=message.message_id)
 
+import telebot
+from telebot import types
+import requests
+import time
+
+# Thay thế 'YOUR_BOT_TOKEN' bằng token bot của bạn
+# Lưu trữ ID của người dùng đã gửi lệnh để xử lý nút bấm
+user_requests = {}
+
+# Hàm kiểm tra tư cách thành viên nhóm (nếu bạn có)
+# @group_membership_required
+# def ping_command(message):
+#     ...
+
+@bot.message_handler(commands=['locket'])
+# @group_membership_required # Bỏ comment nếu bạn muốn giới hạn lệnh này cho thành viên nhóm
+def locket_command(message):
+    args = message.text.split()
+    if len(args) < 4:
+        bot.reply_to(message, "⚠️ Vui lòng sử dụng đúng cú pháp: <code>/locket &lt;link_thread&gt; &lt;số_lần&gt; &lt;tin_nhắn&gt;</code>", parse_mode='HTML')
+        return
+
+    target_url = args[1]
+    try:
+        num_threads = int(args[2])
+    except ValueError:
+        bot.reply_to(message, "⚠️ Số lần phải là một số nguyên hợp lệ.", parse_mode='HTML')
+        return
+    username = " ".join(args[3:]) # Lấy phần còn lại của tin nhắn làm username
+
+    # Lưu thông tin yêu cầu của người dùng để xử lý callback
+    user_requests[message.from_user.id] = {
+        'target_url': target_url,
+        'num_threads': num_threads,
+        'username': username,
+        'chat_id': message.chat.id,
+        'message_id': message.message_id # Lưu message_id để reply_to chính xác
+    }
+
+    html_message = f"""
+<blockquote>
+    <b>⚠️ Xác nhận gửi yêu cầu Locket</b>
+    ➖️➖️➖️➖️➖️➖️
+    🔗 <b>Link:</b> <code>{target_url}</code>
+    🔢 <b>Số lần:</b> <code>{num_threads}</code>
+    👤 <b>Tên người dùng:</b> <code>{username}</code>
+    ➖️➖️➖️➖️➖️➖️
+    <i>Nhấn "Xác nhận" để gửi hoặc "Hủy" để xóa.</i>
+</blockquote>
+"""
+    keyboard = types.InlineKeyboardMarkup()
+    confirm_button = types.InlineKeyboardButton("✅ Xác nhận", callback_data='locket_confirm')
+    cancel_button = types.InlineKeyboardButton("❌ Hủy", callback_data='locket_cancel')
+    keyboard.add(confirm_button, cancel_button)
+
+    bot.reply_to(message, html_message, reply_markup=keyboard, parse_mode='HTML')
+
+
+@bot.callback_query_handler(func=lambda call: call.data in ['locket_confirm', 'locket_cancel'])
+def locket_callback(call):
+    # Kiểm tra xem người bấm nút có phải là người đã gửi lệnh ban đầu không
+    if call.from_user.id not in user_requests or user_requests[call.from_user.id]['chat_id'] != call.message.chat.id:
+        bot.answer_callback_query(call.id, "❌ Bạn không phải là người yêu cầu lệnh này.", show_alert=True)
+        return
+
+    req_data = user_requests.pop(call.from_user.id) # Lấy và xóa dữ liệu yêu cầu
+    
+    if call.data == 'locket_confirm':
+        bot.edit_message_text(chat_id=call.message.chat.id, 
+                              message_id=call.message.message_id,
+                              text="⏳ Đang tiến hành gửi yêu cầu...", 
+                              parse_mode='HTML')
+
+        api_url = f"https://spam-locket.onrender.com/api/locket/start?target_url={req_data['target_url']}&num_threads={req_data['num_threads']}&username={req_data['username']}&emoji=true"
+        
+        try:
+            response = requests.get(api_url)
+            response.raise_for_status() # Báo lỗi nếu mã trạng thái không phải 200 OK
+            json_data = response.json()
+
+            if json_data.get("status") == "success":
+                admin_info = json_data.get("admin_info", {})
+                message_from_api = json_data.get("message", "Không có thông báo.")
+                session_duration = json_data.get("session_duration_seconds", "N/A")
+                threads_started = json_data.get("threads_started", "N/A")
+                custom_username = json_data.get("custom_username", "N/A")
+                target_uid = json_data.get("target_uid", "N/A")
+
+                final_message = f"""
+<blockquote>
+    <b>✅ Spam Locket thành công By @zproject2!</b>
+    ➖️➖️➖️➖️➖️➖️
+    📝 <b>Trạng thái:</b> <i>{json_data.get("status")}</i>
+    📣 <b>Tin nhắn từ API:</b> <i>{message_from_api}</i>
+    🕒 <b>Thời lượng phiên:</b> <i>{session_duration} giây</i>
+    🚀 <b>Luồng đã bắt đầu:</b> <i>{threads_started}</i>
+    👤 <b>Tên tùy chỉnh:</b> <i>{custom_username}</i>
+    🆔 <b>Target UID:</b> <code>{target_uid}</code>
+    ➖️➖️➖️➖️➖️➖️
+    <b>Thông tin Admin:</b>
+    👨‍💻 <b>Admin:</b> <i>{admin_info.get("admin", "N/A")}</i>
+    👥 <b>Nhóm chat:</b> <i>{admin_info.get("chat_group", "N/A")}</i>
+    🔔 <b>Nhóm thông báo:</b> <i>{admin_info.get("notification_group", "N/A")}</i>
+    🤖 <b>Bot Telegram:</b> <i>{admin_info.get("telegram_bot", "N/A")}</i>
+</blockquote>
+"""
+            else:
+                final_message = f"""
+<blockquote>
+    <b>❌ Spam Locket thất bại!</b>
+    ➖️➖️➖️➖️➖️➖️
+    📝 <b>Trạng thái:</b> <i>{json_data.get("status", "Lỗi không xác định")}</i>
+    📣 <b>Thông báo:</b> <i>{json_data.get("message", "Không có thông báo chi tiết.")}</i>
+</blockquote>
+"""
+            bot.edit_message_text(chat_id=call.message.chat.id, 
+                                  message_id=call.message.message_id,
+                                  text=final_message, 
+                                  parse_mode='HTML')
+
+        except requests.exceptions.RequestException as e:
+            error_message = f"""
+<blockquote>
+    <b>❌ Đã xảy ra lỗi khi gửi yêu cầu đến API!</b>
+    ➖️➖️➖️➖️➖️➖️
+    <code>Lỗi:</code>
+    <i>Vui lòng thử lại sau.</i>
+</blockquote>
+"""
+            bot.edit_message_text(chat_id=call.message.chat.id, 
+                                  message_id=call.message.message_id,
+                                  text=error_message, 
+                                  parse_mode='HTML')
+        
+    elif call.data == 'locket_cancel':
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.answer_callback_query(call.id, "Đã hủy yêu cầu Locket.", show_alert=True)
+
+# Các phần code ping_command và refresh_ping_callback của bạn
+
 import json # Đảm bảo import json ở đầu file nếu chưa có
 
 # Lệnh /checkgrn
@@ -1823,6 +1963,7 @@ def admin_reply_to_feedback(message):
         logging.error(f"Lỗi khi gửi phản hồi của admin đến người dùng {user_chat_id}: {e}")
         send_message_robustly(message.chat.id, text="❌ Đã xảy ra lỗi khi gửi phản hồi của Admin đến người dùng.", parse_mode="HTML", reply_to_message_id=message.message_id)
 
+
 @bot.message_handler(commands=["sever"])
 @increment_interaction_count
 # Lệnh /sever không cần group_membership_required vì đây là lệnh dành riêng cho Admin
@@ -1909,6 +2050,7 @@ def handle_mail10p(message):
         threading.Thread(target=auto_delete_email, args=(user_id,)).start()
     else:
         send_message_robustly(message.chat.id, "❌ Không thể tạo email. Vui lòng thử lại sau!", parse_mode='Markdown', reply_to_message_id=message.message_id)
+
 
 @bot.message_handler(commands=['ping'])
 @group_membership_required
