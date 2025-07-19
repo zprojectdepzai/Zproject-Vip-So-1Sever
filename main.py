@@ -962,9 +962,9 @@ def send_final_notification(admin_id):
 import requests
 import json
 import logging
-from datetime import datetime, timedelta # Giờ chúng ta không cần import 'time' class từ datetime nữa
+from datetime import datetime, timedelta
 import threading
-import time # Vẫn giữ lại dòng này cho time.sleep()
+import time
 
 # --- Đảm bảo các biến cấu hình này đã được định nghĩa ở đâu đó trong code của bạn ---
 # Ví dụ:
@@ -1023,11 +1023,11 @@ def send_like_request(uid):
         response.raise_for_status() # Nâng ngoại lệ cho mã trạng thái lỗi HTTP
         return response.json()
     except requests.exceptions.RequestException as e:
-        logging.error(f"Lỗi khi gửi yêu cầu like cho UID {uid}: {e}")
-        return {"status": 0, "message": f"Lỗi kết nối API: {e}"}
+        logging.error(f"Lỗi khi gửi yêu cầu like cho UID {uid}:sex.com")
+        return {"status": 0, "message": f"Lỗi kết nối API:sex.com"}
     except json.JSONDecodeError as e:
-        logging.error(f"Lỗi phân tích JSON cho UID {uid}: {e}, Phản hồi: {response.text}")
-        return {"status": 0, "message": f"Lỗi đọc dữ liệu từ API: {e}"}
+        logging.error(f"Lỗi phân tích JSON cho UID {uid}: {e}, Phản hồi:sex.com")
+        return {"status": 0, "message": f"Lỗi đọc dữ liệu từ API: sex.com"}
 
 def perform_auto_like():
     global last_auto_like_date
@@ -1097,18 +1097,17 @@ def auto_like_scheduler():
         threading.Timer(300, load_auto_like_uids).start()
 
         now = get_vietnam_time()
-        # CÁCH THAY THẾ MỚI ĐỂ TRÁNH LỖI 'time' descriptor
-        # Tạo một đối tượng datetime cho 00:00 hôm nay
-        start_of_today = datetime(now.year, now.month, now.day, 0, 0, 0)
-        # Cộng thêm 1 ngày để có 00:00 ngày hôm sau
-        midnight_tomorrow = start_of_today + timedelta(days=1)
+        
+        # Thiết lập thời gian mục tiêu là 6 giờ sáng
+        target_time = now.replace(hour=6, minute=0, second=0, microsecond=0)
 
-        time_to_wait = (midnight_tomorrow - now).total_seconds()
+        # Nếu thời gian hiện tại đã qua 6 giờ sáng, đặt mục tiêu là 6 giờ sáng ngày mai
+        if now >= target_time:
+            target_time += timedelta(days=1)
 
-        if time_to_wait < 0:
-            time_to_wait += 24 * 3600
+        time_to_wait = (target_time - now).total_seconds()
 
-        logging.info(f"Chờ {time_to_wait:.2f} giây đến 00:00 ngày mai để chạy auto like.")
+        logging.info(f"Chờ {time_to_wait:.2f} giây đến 06:00 sáng để chạy auto like.")
         time.sleep(time_to_wait)
 
         perform_auto_like()
@@ -1186,7 +1185,7 @@ def send_like(message):
         bot.reply_to(message, f"""
         <blockquote>
             <b>⚠️ Lỗi kết nối API!</b>
-            <i>Lỗi hệ thống:</i> <i><code>{e}</code></i>
+            <i>Lỗi hệ thống:</i> <i><code>sex.com</code></i>
             <i>Vui lòng thử lại sau.</i>
         </blockquote>
         """, parse_mode="HTML")
@@ -1195,7 +1194,7 @@ def send_like(message):
         bot.reply_to(message, f"""
         <blockquote>
             <b>⚠️ Lỗi đọc dữ liệu từ API!</b>
-            <i>Lỗi hệ thống:</i> <i><code>{e}</code></i>
+            <i>Lỗi hệ thống:</i> <i><code>sex.com</code></i>
             <i>Có thể API đang bảo trì hoặc trả về dữ liệu không hợp lệ.</i>
         </blockquote>
         """, parse_mode="HTML")
@@ -1204,7 +1203,7 @@ def send_like(message):
         bot.reply_to(message, f"""
         <blockquote>
             <b>⚠️ Lỗi không xác định!</b>
-            <i>Lỗi hệ thống:</i> <i><code>{e}</code></i>
+            <i>Lỗi hệ thống:</i> <i><code>sex.com</code></i>
             <i>Vui lòng liên hệ admin để được hỗ trợ.</i>
         </blockquote>
         """, parse_mode="HTML")
@@ -1232,18 +1231,18 @@ def set_autolike(message):
         save_result = save_response.json()
 
         if save_result.get("status") == "success":
-            bot.reply_to(message, f"✅ UID `{uid}` đã được thêm vào danh sách auto like thành công!.\nBot sẽ tự động buff like vào 00:00 mỗi ngày.")
+            bot.reply_to(message, f"✅ KÍCH HOẠT BUFF LIKE THÀNH CÔNG.")
             load_auto_like_uids()
             perform_initial_autolike(uid, message.chat.id)
         else:
             bot.reply_to(message, f"❌ Không thể thêm UID `{uid}` vào danh sách auto like. Lỗi: {save_result.get('message', 'Không rõ lỗi')}")
 
     except requests.exceptions.RequestException as e:
-        bot.reply_to(message, f"❌ Lỗi khi kết nối đến API lưu UID: `{e}`")
+        bot.reply_to(message, f"❌ Lỗi khi kết nối đến API lưu UID: `sex.com`")
     except json.JSONDecodeError:
         bot.reply_to(message, f"❌ Lỗi đọc phản hồi từ API lưu UID.")
     except Exception as e:
-        bot.reply_to(message, f"❌ Lỗi không xác định khi thiết lập auto like: `{e}`")
+        bot.reply_to(message, f"❌ Lỗi không xác định khi thiết lập auto like: `sex.com`")
 
 
 def perform_initial_autolike(uid, chat_id):
@@ -1280,7 +1279,7 @@ def perform_initial_autolike(uid, chat_id):
             <b>⚠️ Kích Hoạt Auto Buff Like 24/7 Thất Bại!</b>
             <i>UID:</i> <b><code>{uid}</code></b>
             <i>Trạng thái:</i> <b>Thất bại</b>
-            <i>Lỗi:</i> <i>{error_message}</i>
+            <i>Lỗi:</i> <i>sex.com</i>
             <i>Thời gian:</i> <b><code>{get_vietnam_time().strftime('%H:%M:%S %d/%m/%Y')} (VN)</code></b>
         </blockquote>
         """
