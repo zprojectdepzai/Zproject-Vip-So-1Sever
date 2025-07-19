@@ -599,6 +599,7 @@ def help_command(message):
         "<blockquote>•  <code>/ask &lt;câu hỏi&gt;</code> - Hỏi AI Được Tích Hợp WormGpt V2</blockquote>\n"
         "<blockquote>•  <code>/checkgrn &lt;USERNAME PASSWORD&gt;</code> - Check Thông Tin Acc Garena</blockquote>\n"
         "<blockquote>•  <code>/ngl &lt;username&gt; &lt;tin_nhắn&gt; &lt;số_lần&gt;</code> - Spam Ngl</blockquote>\n"
+        "<blockquote>•  <code>/locket &lt;link_thread&gt; &lt;số_lần&gt; &lt;tin_nhắn&gt;</code> - Spam Locket Max Speed</blockquote>\n"
         "<blockquote>•  <code>/like &lt;UID FF&gt;</code> - Buff Like Free Fire</blockquote>\n"
         "<blockquote>•  <code>/kbff &lt;UID FF&gt;</code> - Spam Kết Bạn Free Fire</blockquote>\n"
         "<blockquote>•  <code>/in4ff &lt;REGION UID FF&gt;</code> - Check info Account FF</blockquote>\n"
@@ -1438,18 +1439,20 @@ user_requests = {}
 #     ...
 
 @bot.message_handler(commands=['locket'])
+@increment_interaction_count
+@group_membership_required
 # @group_membership_required # Bỏ comment nếu bạn muốn giới hạn lệnh này cho thành viên nhóm
 def locket_command(message):
     args = message.text.split()
     if len(args) < 4:
-        bot.reply_to(message, "⚠️ Vui lòng sử dụng đúng cú pháp: <code>/locket &lt;link_thread&gt; &lt;số_lần&gt; &lt;tin_nhắn&gt;</code>", parse_mode='HTML')
+        bot.reply_to(message, "⚠️ Vui lòng sử dụng đúng lệnh: <code>/locket &lt;link_thread&gt; &lt;số_lần&gt; &lt;tin_nhắn&gt;</code>", parse_mode='HTML')
         return
 
     target_url = args[1]
     try:
         num_threads = int(args[2])
     except ValueError:
-        bot.reply_to(message, "⚠️ Số lần phải là một số nguyên hợp lệ.", parse_mode='HTML')
+        bot.reply_to(message, "⚠️ Số lần phải hợp lệ.", parse_mode='HTML')
         return
     username = " ".join(args[3:]) # Lấy phần còn lại của tin nhắn làm username
 
@@ -1464,13 +1467,13 @@ def locket_command(message):
 
     html_message = f"""
 <blockquote>
-    <b>⚠️ Xác nhận gửi yêu cầu Locket</b>
+    <b>⚠️ Xác nhận Thông Tin Spam Locket</b>
     ➖️➖️➖️➖️➖️➖️
     🔗 <b>Link:</b> <code>{target_url}</code>
     🔢 <b>Số lần:</b> <code>{num_threads}</code>
-    👤 <b>Tên người dùng:</b> <code>{username}</code>
+    👤 <b>Tin Nhắn Spam:</b> <code>{username}</code>
     ➖️➖️➖️➖️➖️➖️
-    <i>Nhấn "Xác nhận" để gửi hoặc "Hủy" để xóa.</i>
+    <i>Nhấn "Xác nhận" để spam hoặc "Hủy" để xóa.</i>
 </blockquote>
 """
     keyboard = types.InlineKeyboardMarkup()
@@ -1493,7 +1496,7 @@ def locket_callback(call):
     if call.data == 'locket_confirm':
         bot.edit_message_text(chat_id=call.message.chat.id, 
                               message_id=call.message.message_id,
-                              text="⏳ Đang tiến hành gửi yêu cầu...", 
+                              text="⏳ Zproject đang xử lí...", 
                               parse_mode='HTML')
 
         api_url = f"https://spam-locket.onrender.com/api/locket/start?target_url={req_data['target_url']}&num_threads={req_data['num_threads']}&username={req_data['username']}&emoji=true"
@@ -1513,17 +1516,16 @@ def locket_callback(call):
 
                 final_message = f"""
 <blockquote>
-    <b>✅ Spam Locket thành công By @zproject2!</b>
+    <b>✅ Attack Spam Locket thành công!</b>
     ➖️➖️➖️➖️➖️➖️
     📝 <b>Trạng thái:</b> <i>{json_data.get("status")}</i>
-    📣 <b>Tin nhắn từ API:</b> <i>{message_from_api}</i>
-    🕒 <b>Thời lượng phiên:</b> <i>{session_duration} giây</i>
-    🚀 <b>Luồng đã bắt đầu:</b> <i>{threads_started}</i>
-    👤 <b>Tên tùy chỉnh:</b> <i>{custom_username}</i>
+    🕒 <b>Thời Gian:</b> <i>{session_duration} giây</i>
+    🚀 <b>Thread:</b> <i>{threads_started}</i>
+    👤 <b>Tin Nhắn Spam:</b> <i>{custom_username}</i>
     🆔 <b>Target UID:</b> <code>{target_uid}</code>
     ➖️➖️➖️➖️➖️➖️
     <b>Thông tin Admin:</b>
-    👨‍💻 <b>Admin:</b> <i>{admin_info.get("admin", "N/A")}</i>
+    👨‍💻 <b>Admin:</b> @zproject2 <i>{admin_info.get("admin", "N/A")}</i>
     👥 <b>Nhóm chat:</b> <i>{admin_info.get("chat_group", "N/A")}</i>
     🔔 <b>Nhóm thông báo:</b> <i>{admin_info.get("notification_group", "N/A")}</i>
     🤖 <b>Bot Telegram:</b> <i>{admin_info.get("telegram_bot", "N/A")}</i>
