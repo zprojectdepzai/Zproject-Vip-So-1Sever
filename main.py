@@ -67,7 +67,7 @@ bot.code_snippets = {}
 bot.voice_map = {}
 bot.mail_messages_state = {}
 bot.noti_states = {}
-interaction_count = 730
+interaction_count = 1200
 auto_like_uids = []
 last_auto_like_date = {} # Lưu ngày cuối cùng auto like cho mỗi UID
 
