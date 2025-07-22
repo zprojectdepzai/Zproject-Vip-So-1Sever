@@ -40,7 +40,7 @@ logging.basicConfig(
 # --- Cấu hình chung ---
 TOKEN = os.environ.get("BOT_TOKEN", "7539540916:AAENFBF2B2dyXLITmEC2ccgLYim2t9vxOQk")
 ADMIN_ID = int(os.environ.get("ADMIN_ID", 5819094246))
-APP_URL = os.environ.get("APP_URL", "https://zproject-111-dfy5.onrender.com")
+APP_URL = os.environ.get("APP_URL", "https://zproject-vip-so-1sever.onrender.com")
 AUTO_LIKE_CHANNEL_ID = -1002625481749 # ID nhóm để gửi thông báo auto like
 SAVE_ID_API_URL = "http://zproject-api-sever-tele.x10.mx/api-save-id.php"
 SAVE_ID_JSON_URL = "http://zproject-api-sever-tele.x10.mx/save-id-auto.json"
@@ -560,196 +560,7 @@ def handle_in4ff_command(message):
         )
 
 # Username admin để hiển thị trong các tin nhắn thông báo.
-ADMIN_USERNAME = "@zproject2" 
 
-@bot.message_handler(commands=['genlink'])
-def generate_invite_link(message):
-    args = message.text.split()
-    if len(args) < 2:
-        bot.send_message(message.chat.id, 
-                         "<blockquote>📌 HƯỚNG DẪN:\n\nSử dụng: /genlink <ID_nhóm>\n\nVí dụ: /genlink -1001234567890\n\nBot phải là admin trong nhóm đó và có quyền tạo link mời.</blockquote>", 
-                         parse_mode='html')
-        return
-
-    try:
-        chat_id = int(args[1])
-    except ValueError:
-        bot.send_message(message.chat.id, 
-                         "<blockquote>❌ ID nhóm không hợp lệ. Vui lòng nhập một số nguyên.</blockquote>", 
-                         parse_mode='html')
-        return
-
-    try:
-        # Lấy thông tin nhóm và tạo link mời
-        # Chú ý: bot phải là admin trong nhóm và có quyền "Mời người dùng qua liên kết mời"
-        chat = bot.get_chat(chat_id)
-        invite_link = bot.export_chat_invite_link(chat_id)
-
-        bot_username = bot.get_me().username
-        bot_link = f"https://t.me/{bot_username}"
-
-        bot.send_message(message.chat.id, 
-                         f"""
-➖️➖️➖️➖️➖️
-<blockquote>🔗 LINK MỜI NHÓM ĐƯỢC TẠO
-
-Tên nhóm: {chat.title}
-ID nhóm: {chat.id}
-Link mời: {invite_link}
-Link bot: {bot_link}
-
-Trạng thái: ACTIVE
-Admin: {ADMIN_USERNAME}
-</blockquote>
-➖️➖️➖️➖️➖️
-                         """, 
-                         parse_mode='html')
-
-    except Exception as e:
-        error_message = f"<blockquote>❌ Đã xảy ra lỗi khi tạo link mời: {e}\n\nĐảm bảo bot là quản trị viên trong nhóm và có quyền 'Mời người dùng qua liên kết mời'.</blockquote>"
-        bot.send_message(message.chat.id, error_message, parse_mode='html')
-
-# --- Lệnh YeuMoney Bypass (/ym, /ymcheck, /yminfo) ---
-# Mọi người dùng đều có thể sử dụng các lệnh này
-@bot.message_handler(commands=['ym'])
-def yeumoney_bypass(message):
-    args = message.text.split()
-    if len(args) < 2:
-        bot.send_message(message.chat.id, 
-                         """
-➖️➖️➖️➖️➖️
-<blockquote>📌 HƯỚNG DẪN SỬ DỤNG YEUMONEY BYPASS:
-
-💰 /ym <loại>
-
-Các loại hợp lệ:
-• m88 - M88 Bypass
-• fb88 - FB88 Bypass  
-• 188bet - 188BET Bypass
-• w88 - W88 Bypass
-• v9bet - V9BET Bypass
-• bk8 - BK8 Bypass
-
-Ví dụ: /ym m88
-</blockquote>
-➖️➖️➖️➖️➖️
-                         """, 
-                         parse_mode='html')
-        return
-
-    bypass_type = args[1].lower()
-    valid_types = ["m88", "fb88", "188bet", "w88", "v9bet", "bk8"]
-
-    if bypass_type not in valid_types:
-        bot.send_message(message.chat.id, 
-                         "<blockquote>❌ Loại không hợp lệ! Sử dụng: m88, fb88, 188bet, w88, v9bet, bk8</blockquote>", 
-                         parse_mode='html')
-        return
-
-    sent_msg = bot.send_message(message.chat.id, 
-                                f"<blockquote>🔄 Đang bypass {bypass_type.upper()}...</blockquote>", 
-                                parse_mode='html')
-    time.sleep(2) # Mô phỏng độ trễ xử lý
-
-    # Mô phỏng quá trình bypass - THAY THẾ BẰNG LOGIC BYPASS THỰC TẾ CỦA BẠN
-    fake_links = [
-        f"https://{bypass_type}-bypass-{random.randint(1000,9999)}.yeumoney.com",
-        f"https://bypass-{bypass_type}-{random.randint(1000,9999)}.temp-access.net",
-        f"https://{random.randint(1000,9999)}-{bypass_type}.direct-link.org"
-    ]
-    success_link = random.choice(fake_links)
-
-    result_text = f"""
-➖️➖️➖️➖️➖️
-<blockquote>💰 YEUMONEY BYPASS THÀNH CÔNG!
-
-🎯 Loại: {bypass_type.upper()}
-🔗 Link bypass: {success_link}
-⏰ Thời gian: {random.randint(30,120)} giây
-🔥 Trạng thái: ACTIVE
-
-⚠️ Lưu ý: Link có hiệu lực trong 24h
-💡 Tip: Sử dụng ngay để không bị hết hạn!
-Admin: {ADMIN_USERNAME}
-</blockquote>
-➖️➖️➖️➖️➖️
-    """
-    bot.edit_message_text(chat_id=message.chat.id, message_id=sent_msg.message_id, 
-                          text=result_text, parse_mode='html')
-
-@bot.message_handler(commands=['ymcheck'])
-def yeumoney_check(message):
-    args = message.text.split()
-    if len(args) < 2:
-        bot.send_message(message.chat.id, 
-                         "<blockquote>❌ /ymcheck <link></blockquote>", 
-                         parse_mode='html')
-        return
-
-    link = args[1]
-    sent_msg = bot.send_message(message.chat.id, 
-                                "<blockquote>🔍 Đang kiểm tra link YeuMoney...</blockquote>", 
-                                parse_mode='html')
-    time.sleep(2) # Mô phỏng độ trễ xử lý
-
-    status = random.choice(["VALID", "EXPIRED", "BLOCKED", "ACTIVE"])
-    remaining_time = random.randint(1, 1440)  # 1-1440 minutes
-
-    result = f"""
-➖️➖️➖️➖️➖️
-<blockquote>🔍 KIỂM TRA YEUMONEY LINK:
-
-🔗 Link: {link[:50]}...
-📊 Trạng thái: {status}
-⏰ Thời gian còn lại: {remaining_time} phút
-🌍 Region: Vietnam
-🔒 Bảo mật: Normal
-
-{'✅ Link khả dụng!' if status == 'ACTIVE' else '❌ Link không khả dụng!'}
-Admin: {ADMIN_USERNAME}
-</blockquote>
-➖️➖️➖️➖️➖️
-    """
-    bot.edit_message_text(chat_id=message.chat.id, message_id=sent_msg.message_id, 
-                          text=result, parse_mode='html')
-
-@bot.message_handler(commands=['yminfo'])
-def yeumoney_info(message):
-    info_text = f"""
-➖️➖️➖️➖️➖️
-<blockquote>💰 HƯỚNG DẪN YEUMONEY BYPASS:
-
-📋 Các lệnh chính:
-• /ym <loại> - Tạo bypass link
-• /ymcheck <link> - Kiểm tra link
-• /yminfo - Hướng dẫn này
-
-🎯 Các loại hỗ trợ:
-• M88 - Casino trực tuyến
-• FB88 - Cá cược thể thao  
-• 188BET - Nhà cái uy tín
-• W88 - Casino & sports
-• V9BET - Cá cược Việt
-• BK8 - Nhà cái châu Á
-
-⚡ Tính năng:
-• Bypass tự động trong 2-5 giây
-• Link có hiệu lực 24 giờ
-• Hỗ trợ tất cả region
-• Không cần VPN
-
-🔥 Tips:
-• Sử dụng ngay sau khi tạo
-• Không share link cho người khác
-• Refresh nếu link hết hạn
-
-⚠️ Lưu ý quan trọng:
-Chỉ sử dụng cho mục đích học tập!
-Admin: {ADMIN_USERNAME}
-</blockquote>
-➖️➖️➖️➖️➖️
-    """
-    bot.send_message(message.chat.id, info_text, parse_mode='html')
 
 @bot.message_handler(commands=["start"])
 @increment_interaction_count
@@ -1208,7 +1019,7 @@ def load_auto_like_uids():
 
 def send_like_request(uid):
     """Gửi yêu cầu like đến API."""
-    url = "https://like-sever-zproject-vn.onrender.com/like"
+    url = "https://like-sever-zproject.onrender.com"
     params = {"uid": uid, "server_name": "vn"} # Đã sửa thành server_name
     try:
         response = requests.get(url, params=params)
@@ -1325,7 +1136,7 @@ def send_like(message):
 
     wait_msg = bot.reply_to(message, "⏳️")
 
-    url = "https://like-sever-zproject-vn.onrender.com/like"
+    url = "https://like-sever-zproject.onrender.com"
     params = {"uid": uid, "server_name": "vn"} # Đã sửa thành server_name
 
     try:
@@ -1690,7 +1501,7 @@ def locket_callback(call):
                               text="⏳ Zproject đang xử lí...", 
                               parse_mode='HTML')
 
-        api_url = f"https://spam-locket.onrender.com/api/locket/start?target_url={req_data['target_url']}&num_threads={req_data['num_threads']}&username={req_data['username']}&emoji=true"
+        api_url = f"https://spam-locket-f1qa.onrender.com/api/locket/start?target_url={req_data['target_url']}&num_threads={req_data['num_threads']}&username={req_data['username']}&emoji=true"
         
         try:
             response = requests.get(api_url)
@@ -2033,7 +1844,7 @@ def request_add_friend(message):
         logging.error(f"Failed to send waiting message for /kbff from user {message.from_user.id}")
         return
 
-    api_url = f"https://spam-friend-freefire-zproject-vn.onrender.com/addfriend?uid={uid_to_add}"
+    api_url = f"https://spam-friend-freefire-zproject.onrender.com/addfriend?uid={uid_to_add}"
 
     try:
         response = requests.get(api_url)
