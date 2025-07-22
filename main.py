@@ -1019,7 +1019,7 @@ def load_auto_like_uids():
 
 def send_like_request(uid):
     """Gửi yêu cầu like đến API."""
-    url = "https://like-sever-zproject.onrender.com"
+    url = "https://like-sever-zproject.onrender.com/like"
     params = {"uid": uid, "server_name": "vn"} # Đã sửa thành server_name
     try:
         response = requests.get(url, params=params)
@@ -1136,7 +1136,7 @@ def send_like(message):
 
     wait_msg = bot.reply_to(message, "⏳️")
 
-    url = "https://like-sever-zproject.onrender.com"
+    url = "https://like-sever-zproject.onrender.com/like"
     params = {"uid": uid, "server_name": "vn"} # Đã sửa thành server_name
 
     try:
